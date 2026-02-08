@@ -50,7 +50,7 @@ void buscar_veiculo(Veiculo *lista, char *placa) {
         while (lista != NULL) { 
             if (strcmp(lista->placa, placa) == 0) {
                  printf("\n--- Veiculo Encontrado ---\n"); 
-                 printf("\nVaga do veiculo: %s",lista->vaga_do_veiculo);
+                 printf("\nVaga: %s",lista->vaga_do_veiculo);
                  printf("\nPlaca: %s", lista->placa);
                  printf("\nModelo: %s", lista->modelo); 
                  printf("\nCor: %s", lista->cor); 
@@ -105,18 +105,18 @@ Veiculo* remover_veiculo(Veiculo *lista, char *placa) {
             else
                 atual->condutor->veiculos_cadastrados = 0;
 
-
+            
             free(atual);
             reescrever_arquivo_veiculos(lista);
 
             printf("\nVeiculo removido com sucesso!\n");
             return lista;
         }
-
+        
         anterior = atual;
         atual = atual->prox;
     }
-
+    
     printf("\nVeiculo nao encontrado.\n");
     return lista;
 }
@@ -125,15 +125,19 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
 
     Veiculo *novo = malloc(sizeof(Veiculo));
-
+    int verificar_placa;
+    int vaga_valida ;
+    int vaga_valida_banco;
+    char *cpf = NULL  ;
+    
     if (!novo) {
-    printf("\nErro de memoria.\n");
-    return lista;
-}
+        printf("\nErro de memoria.\n");
+        return lista;
+    }
 
     printf("\nInsira o cpf do condutor: ");
-        char *cpf = ler_string();
-
+    
+    cpf = ler_string();
     Usuario *dono = buscar_proprietario(lista1,cpf);
 
 
@@ -165,6 +169,12 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
         novo->tipo_vaga = ler_string();
 
+        if(novo->tipo_vaga == NULL){
+             free(novo->tipo_vaga);
+            novo->tipo_vaga = NULL;
+            continue;
+        }
+
 
 
         if((strcmp(novo->tipo_vaga,"Carro")== 0) || (strcmp(novo->tipo_vaga,"carro")==0)){
@@ -193,8 +203,6 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
 
     do{
-        int vaga_valida ;
-        int vaga_valida_banco;
 
         printf("\nvaga do Veiculo: ");
         printf("\n(Exemplo: A1, B2, C3 etc.)\n");
@@ -237,14 +245,13 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
     do{
 
-        int verificar_placa;
         printf("\nPlaca: ");
         novo->placa = ler_string();
        
         verificar_placa = verificar_placa_banco_dados(novo->placa ) ;
 
         if(verificar_placa == 1){
-            printf("\nPlaca ja foi registrad\n");
+            printf("\nPlaca ja foi registrada\n");
             free(novo->placa);
             novo->placa = NULL;
             continue;
@@ -283,6 +290,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
     {
 
         novo->tempo_permanencia = NULL;
+        free( novo->tempo_permanencia);
 
         if(strcmp(novo->valor_pago, "R$50,00") == 0){
              printf("\nDiaria selecionada.\n");
@@ -320,7 +328,9 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
     novo->prox = lista;
     lista = novo;
+
     dono->veiculos_cadastrados++;
+
     printf("\nVeiculo cadastrado com sucesso!\n");
     return lista;
 }
@@ -335,7 +345,7 @@ void listar_veiculos(Veiculo *lista) {
     printf("\n--- Veiculos no Estacionamento ---\n");
 
     while (lista != NULL ) {
-        printf("\nVaga do Veiculo: %s", lista->vaga_do_veiculo);
+        printf("\nVaga: %s", lista->vaga_do_veiculo);
         printf("\nPlaca: %s", lista->placa);
         printf("\nModelo: %s", lista->modelo);
         printf("\nCor: %s", lista->cor);
@@ -438,7 +448,7 @@ char *tempo_permanencia_sistema() {
 char *data_do_sistema(void) {
     time_t agora;
     struct tm *tempo;
-    char *data = malloc(11); // DD/MM/YYYY + '\0'
+    char *data = malloc(15); 
 
     if (data == NULL) {
         return NULL;
@@ -452,14 +462,13 @@ char *data_do_sistema(void) {
         return NULL;
     }
 
-    snprintf(
-        data,
-        11,
-        "%02d/%02d/%04d",
-        tempo->tm_mday,
-        tempo->tm_mon + 1,
-        tempo->tm_year + 1900
-    );
+    unsigned short dia  = tempo->tm_mday;
+    unsigned short mes  = tempo->tm_mon + 1;
+    unsigned short ano  = tempo->tm_year + 1900;
+
+    snprintf(data, 11, "%02hu/%02hu/%04hu", dia, mes, ano);
+
+    
 
     return data;
 
@@ -492,11 +501,10 @@ int Id_existe(Veiculo *lista, char *id_vaga) {
     }
 
     while (atual != NULL) {
-        if (strcmp(atual->vaga_do_veiculo, id_vaga) == 0) { 
+        if (atual->vaga_do_veiculo && strcmp(atual->vaga_do_veiculo, id_vaga) == 0) { 
             return 1; 
         }
         atual = atual->prox;
-
     }
     return 0; 
 }
@@ -510,7 +518,7 @@ void reescrever_arquivo_veiculos(Veiculo *lista) {
 
     while (lista != NULL) {
         fprintf(file, "\n---- Dados do Veiculo ----\n");
-        fprintf(file, "Vaga do Veiculo: %s\n", lista->vaga_do_veiculo);
+        fprintf(file, "Vaga: %s\n", lista->vaga_do_veiculo);
         fprintf(file, "Placa: %s\n", lista->placa);
         fprintf(file, "Modelo: %s\n", lista->modelo);
         fprintf(file, "Cor: %s\n", lista->cor);
@@ -543,7 +551,7 @@ char *ler_string() {
         if (memoria[0]  == '\n' ){
 
             printf("\nErro o campo nao pode ser vazio\n");
-            printf("\nInsira novamente o campo recomendado:\n");
+            printf("\nTente Novamente:\n");
 
             continue; }
             
@@ -570,30 +578,32 @@ void limpar_buffer() {
 Usuario *cadastrarCondutor(Usuario *lista1){
 
      Usuario *novo = malloc(sizeof(Usuario)); 
-     novo->veiculos_cadastrados = 0;
-     int opcao;
-        int contador =0;
 
+     
+     int opcao;
+     int contador =0;
      int chances = 3;
 
-     do{
-      printf("\nInsira o nome do Condutor:  ");
-      novo->nome = ler_string();
+     novo->veiculos_cadastrados = 0;
 
-      if(novo->nome == NULL){
-        free(novo->nome);
-        printf("\nEste campo n pode ser vazio\n");
-        continue;
-      }else{
-        break;
-      }
+    do{
+        printf("\nInsira o nome do Condutor:  ");
+            novo->nome = ler_string();
 
-     }while(1);
+            if(novo->nome == NULL){
+                free(novo->nome);
+                printf("\nEste campo n pode ser vazio\n");
+                continue;
+            }else{
+                break;
+            }
+
+    }while(1);
 
 
 
 
-        do {
+    do {
         printf("\nInsira o CPF do Proprietario: ");
         novo->cpf = ler_string();
 
@@ -621,12 +631,12 @@ Usuario *cadastrarCondutor(Usuario *lista1){
 
         if (verificar_banco_dados_usuario(novo->cpf) ) {
             printf("Erro: CPF ja cadastrado \n");
-           // printf("Voce tera %d chances para digitar um CPF valido.\n",chances -1);
+           
 
            printf("\nDigite 1 - Para tentar novamente\nDigite 2 - Para sair \n");
            
            scanf("%d",&opcao);
-           getchar();
+           limpar_buffer();
 
            if(opcao == 1){
             printf("Voce tera %d chances para digitar um CPF valido.\n",chances -1);
@@ -640,17 +650,12 @@ Usuario *cadastrarCondutor(Usuario *lista1){
             if(opcao == 2){
                 free(novo->cpf);
                 novo->cpf = NULL;
-           printf("\n--- Saindo -- \n");
+             printf("\n--- Saindo -- \n");
            return 0;
            }
-
-
            continue;
-
-
-
-
         }
+
         if (verificar_cpf(lista1, novo->cpf)) {
             printf("Erro: CPF ja cadastrado \n");
             printf("Voce tera %d chances para digitar um CPF valido.\n",chances -1);
@@ -664,10 +669,36 @@ Usuario *cadastrarCondutor(Usuario *lista1){
         break; 
     } while (1);
 
-    printf("\nInsira o telefone do Condutor: ");
-        novo->telefone = ler_string();
 
-                
+    do{
+        printf("\nInsira o telefone do Condutor: ");
+    
+
+        novo->telefone = ler_string();
+        novo->telefone = analizar_telefone(novo->telefone);
+          
+
+
+        if(novo->telefone == NULL){
+          
+            continue;
+        }
+
+        if( strlen(novo->telefone) < 11 || strlen(novo->telefone) > 11){
+       
+            printf("\nTelefone deve Conter DD + 9 Digitos\n");
+            free(novo->telefone);
+            novo->telefone = NULL;
+            continue;
+        }
+
+       
+        
+        break;
+
+    }while(1 );
+
+                    
                
                     
     printf("\nInsira seu email: ");
@@ -903,7 +934,6 @@ void imprime_proprietario(Usuario *lista1){
 
 
 
-
 int verificar_banco_dados_usuario(char *cpf) {
 
     char *cpf_arquivo;
@@ -947,8 +977,11 @@ int verificar_placa_banco_dados(char *placa){
     char *placa_arquivo;
 
     FILE *file = fopen("data/Estacionamento.txt","r");
-    if(!file) 
+
+    if(!file) {
         printf("erro ao abrir arquivo");
+     return 0;}
+
 
     while(fgets(linhas,sizeof(linhas),file)){
 
@@ -1034,7 +1067,30 @@ int verificar_vaga_banco(char *vaga){
 
     return 0;
 
+}
 
+char *analizar_telefone(char *telefone){
+    int i = 0;
+    int j =0;
+    char *telefone_valido = malloc(strlen(telefone)+1);
+
+    if(telefone_valido == NULL){
+        return NULL;
+    }
+    for(i =0; telefone[i]!='\0';i++){
+
+        if(telefone[i] != ' ' && telefone[i] != '(' && telefone[i] != ')'){
+            
+            telefone_valido[j] = telefone[i];
+           j++;
+        }
+
+
+    }
+
+    telefone_valido[j] = '\0';
+
+    return telefone_valido;
 
 
 

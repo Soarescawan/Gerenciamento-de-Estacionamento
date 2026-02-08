@@ -39,6 +39,8 @@ char *tempo_permanencia_sistema();
 
 char *forma_pagamento();
 
+char *analizar_telefone(char *telefone);
+
 
 int Id_existe(Veiculo *lista, char *id_vaga);
 

@@ -30,6 +30,9 @@ char *placa = NULL;
 char *confirma =NULL;
 char *cpf= NULL;
 
+
+
+
     do {
         menu();
         printf("\n==== Escolha a opcao desejada ==== \n");
