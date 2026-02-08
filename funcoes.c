@@ -194,6 +194,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
     do{
         int vaga_valida ;
+        int vaga_valida_banco;
 
         printf("\nvaga do Veiculo: ");
         printf("\n(Exemplo: A1, B2, C3 etc.)\n");
@@ -206,7 +207,17 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
         continue;
         }
 
+        vaga_valida_banco = verificar_vaga_banco(novo->vaga_do_veiculo);
         vaga_valida = Id_existe(lista, novo->vaga_do_veiculo);
+
+        if(vaga_valida_banco == 1){
+            free(novo->vaga_do_veiculo);
+            printf("\nErro:  Vaga do veiculo já esta em uso.\n");
+            printf("\nPor favor, insira uma vaga diferente.\n");
+            novo->vaga_do_veiculo = NULL;
+            
+            continue;
+        }
 
         if(vaga_valida == 1){
             free(novo->vaga_do_veiculo);
@@ -215,21 +226,24 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
             novo->vaga_do_veiculo = NULL;
             
             continue;
-        }else{
+        }
             printf("\nVaga do veiculo cadastrada com sucesso.\n");
             break;
-        }
+        
 
 
     }while(1);
 
 
     do{
+
+        int verificar_placa;
         printf("\nPlaca: ");
         novo->placa = ler_string();
+       
+        verificar_placa = verificar_placa_banco_dados(novo->placa ) ;
 
-
-         if(verificar_placa_banco_dados(novo->placa ) == 1){
+        if(verificar_placa == 1){
             printf("\nPlaca ja foi registrad\n");
             free(novo->placa);
             novo->placa = NULL;
@@ -349,7 +363,7 @@ void dados_do_veiculo(Veiculo *v) {
     }
 
     fprintf(file, "\n---- Dados do Veiculo ----\n");
-    fprintf(file, "ID da Vaga: %s\n", v->vaga_do_veiculo);
+    fprintf(file, "Vaga: %s\n", v->vaga_do_veiculo);
     fprintf(file, "Placa: %s\n", v->placa);
     fprintf(file, "Modelo: %s\n", v->modelo);
     fprintf(file, "Cor: %s\n", v->cor);
@@ -557,6 +571,7 @@ Usuario *cadastrarCondutor(Usuario *lista1){
 
      Usuario *novo = malloc(sizeof(Usuario)); 
      novo->veiculos_cadastrados = 0;
+     int opcao;
         int contador =0;
 
      int chances = 3;
@@ -606,12 +621,35 @@ Usuario *cadastrarCondutor(Usuario *lista1){
 
         if (verificar_banco_dados_usuario(novo->cpf) ) {
             printf("Erro: CPF ja cadastrado \n");
+           // printf("Voce tera %d chances para digitar um CPF valido.\n",chances -1);
+
+           printf("\nDigite 1 - Para tentar novamente\nDigite 2 - Para sair \n");
+           
+           scanf("%d",&opcao);
+           getchar();
+
+           if(opcao == 1){
             printf("Voce tera %d chances para digitar um CPF valido.\n",chances -1);
-            free(novo->cpf);
-            novo->cpf = NULL;
-            chances--;
-            contador++;
-            continue;
+               free(novo->cpf);
+               novo->cpf = NULL;
+               chances--;
+               contador++;
+               continue;
+
+           }
+            if(opcao == 2){
+                free(novo->cpf);
+                novo->cpf = NULL;
+           printf("\n--- Saindo -- \n");
+           return 0;
+           }
+
+
+           continue;
+
+
+
+
         }
         if (verificar_cpf(lista1, novo->cpf)) {
             printf("Erro: CPF ja cadastrado \n");
@@ -921,7 +959,7 @@ int verificar_placa_banco_dados(char *placa){
 
                 placa_arquivo++;
 
-                while(*placa == ' '){
+                while(*placa_arquivo == ' '){
                      placa_arquivo++;
 
                 }
@@ -929,6 +967,7 @@ int verificar_placa_banco_dados(char *placa){
                  placa_arquivo[strcspn( placa_arquivo,"\n")] = '\0';
 
                  if(strcmp(placa_arquivo,placa)==0){
+                   
                     fclose(file);
                     return 1;
                  }
@@ -938,6 +977,57 @@ int verificar_placa_banco_dados(char *placa){
            
 
         }
+
+    }
+    fclose(file);
+
+    return 0;
+
+
+
+
+
+}
+
+
+int verificar_vaga_banco(char *vaga){
+
+    char linhas[256];
+    char *vaga_procurada;
+
+    FILE *file = fopen("Estacionamento.txt", "r");
+    if(!file){
+
+        printf("\nErro ao abrir arquivo\n");
+        return 0;
+    }
+
+
+
+    while(fgets(linhas,sizeof(linhas),file)){
+
+        if(strstr(linhas,"Vaga:")!=NULL){
+            vaga_procurada = strchr(linhas,':');
+
+            if(vaga_procurada){
+                vaga_procurada++;
+
+                while(*vaga_procurada == ' '){
+                    vaga_procurada++;
+                }
+
+                vaga_procurada[strcspn(vaga_procurada,"\n")]= '\0';
+
+                if(strcmp(vaga_procurada,vaga) == 0){
+
+              
+                fclose(file);
+                return 1;
+                }
+
+            }
+        }
+
 
     }
     fclose(file);

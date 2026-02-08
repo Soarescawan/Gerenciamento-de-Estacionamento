@@ -59,6 +59,9 @@ char *hora_atual_sistema();
 
 char *data_do_sistema();
 
+char *ajustar_placa(char *placa);
+
+int verificar_vaga_banco(char *vaga);
 
 
 
