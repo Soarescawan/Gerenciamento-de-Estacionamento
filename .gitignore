@@ -1,4 +1,10 @@
-a.out
-*.o
+# build gerada pelo gcc
 build/
-.vscode/
+
+# arquivos temporários
+*.o
+*.out
+
+# editor
+*.swp
+*.swo
