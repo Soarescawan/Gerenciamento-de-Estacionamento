@@ -65,6 +65,9 @@ char *ajustar_placa(char *placa);
 
 int verificar_vaga_banco(char *vaga);
 
+void bancoDeDadosProprietarios();
+void bancoDeDadosVeiculos();
+
 
 
 

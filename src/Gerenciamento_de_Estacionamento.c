@@ -140,24 +140,38 @@ char *cpf= NULL;
 
 
                     printf("\n");
-                    printf("\n--------- Proprietario Removido com sucesso ----------\n");
                     free(cpf);
                     free(confirma);
                     break;
                 }
 
-
             case 8:
+                printf("\n---------- Exibindo todos os Proprietarios ja Cadastrados ----------\n");
+
+                bancoDeDadosProprietarios();
+
+                break;
+            
+            case 9:
+
+            printf("\n---------- Exibindo Todos Os veiculos ja cadastrados ----------\n");
+            bancoDeDadosVeiculos();
+            break;
+
+
+
+            case 10:
                 printf("\nEncerrando sistema...\n");
                 break;
+            
 
-                default:
+            default:
                 printf("\nOpcao invalida!\n");
 
          }
 
 
-    } while (opcao != 8);
+    } while (opcao != 9);
 
     return 0;
 }

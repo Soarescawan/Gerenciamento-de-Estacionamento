@@ -215,14 +215,25 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
         continue;
         }
 
+        if(strlen(novo->vaga_do_veiculo)<= 1 || strlen(novo->vaga_do_veiculo) > 2 ){
+
+            printf("\nVaga deve conter apenas dois caracteres\n");
+            printf("\nPor favor, insira a vaga novamente.\n");
+            free(novo->vaga_do_veiculo);
+            novo->vaga_do_veiculo = NULL;
+            continue;
+
+
+        }
+
         vaga_valida_banco = verificar_vaga_banco(novo->vaga_do_veiculo);
         vaga_valida = Id_existe(lista, novo->vaga_do_veiculo);
 
         if(vaga_valida_banco == 1){
             free(novo->vaga_do_veiculo);
+            novo->vaga_do_veiculo = NULL;
             printf("\nErro:  Vaga do veiculo já esta em uso.\n");
             printf("\nPor favor, insira uma vaga diferente.\n");
-            novo->vaga_do_veiculo = NULL;
             
             continue;
         }
@@ -727,11 +738,14 @@ void menu() {
     printf("1 - Cadastrar Condutor\n");
     printf("2 - Cadastrar Veiculo\n");
     printf("3 - Remover Veiculo\n");
-    printf("4 - Listar Veiculos\n");
+    printf("4 - Listar Veiculos cadastradados Recentemete \n");
     printf("5 - Buscar Veiculo pela Placa\n");
-    printf("6 - Buscar Dados do Condutor\n");
+    printf("6 - Buscar Condutor Pelo CPF\n");
     printf("7 - Remover Proprietario\n");
-    printf("8 - Sair\n");
+    printf("8 - Listar todos Usuarios ja cadastrados\n");
+    printf("9 - Listar todos os Veiculos ja cadastrados\n");
+
+    printf("10 - Sair\n");
 
 }
 
@@ -1092,6 +1106,59 @@ char *analizar_telefone(char *telefone){
 
     return telefone_valido;
 
+
+
+}
+
+
+void bancoDeDadosProprietarios(){
+
+    char linhas[256];
+
+    FILE *arquivos = fopen("data/Cadastro_de_usuario.txt", "r");
+
+    if(arquivos == NULL){
+
+        printf("\n Erro ao abrir arquivos\n");
+
+        
+
+    }
+    while(fgets(linhas,sizeof(linhas),arquivos)){
+
+        printf("%s",linhas);
+        printf("\n");
+    }
+
+
+
+    fclose(arquivos);
+
+
+}
+
+void bancoDeDadosVeiculos(){
+
+    char linhas[256];
+
+    FILE *arquivos = fopen("data/Estacionamento.txt", "r");
+
+    if(arquivos == NULL){
+
+        printf("\n Erro ao abrir arquivos\n");
+
+        
+
+    }
+    while(fgets(linhas,sizeof(linhas),arquivos)){
+
+        printf("%s",linhas);
+        printf("\n");
+    }
+
+
+
+    fclose(arquivos);
 
 
 }
