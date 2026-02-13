@@ -6,6 +6,7 @@
 #include <locale.h>
 #include <time.h> 
 #include <string.h>
+ #include <ctype.h>
 
 
 /* Código Cawan Soares e Árthur Gandra - Gerenciamento de Estacionamento 
