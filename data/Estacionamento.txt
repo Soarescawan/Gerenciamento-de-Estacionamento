@@ -1,0 +1,14 @@
+
+---- Dados do Veiculo ----
+Vaga: a1
+Placa: wey 1234
+Modelo: siena
+Cor: cinza
+Tipo de Vaga: carro
+Hora Entrada: 10:26
+Data do Pagamento: 13/02/2026
+Tempo Permanencia: Pernoite
+Forma Pagamento: Debito
+Valor Pago: R$30,00
+Proprietario: CAWAN
+--------------------------

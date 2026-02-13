@@ -19,7 +19,7 @@
 
 int main(){
 
-setlocale(LC_ALL, "PORTUGUESE");
+setlocale(LC_ALL, "pt_BR.UTF-8");
 
 Veiculo *lista = NULL;
 Usuario *lista1= NULL;
@@ -146,16 +146,16 @@ char *cpf= NULL;
                 }
 
             case 8:
-                printf("\n---------- Exibindo todos os Proprietarios ja Cadastrados ----------\n");
-
+            
                 bancoDeDadosProprietarios();
 
                 break;
             
             case 9:
 
-            printf("\n---------- Exibindo Todos Os veiculos ja cadastrados ----------\n");
+            
             bancoDeDadosVeiculos();
+
             break;
 
 
@@ -171,7 +171,7 @@ char *cpf= NULL;
          }
 
 
-    } while (opcao != 9);
+    } while (opcao != 10);
 
     return 0;
 }

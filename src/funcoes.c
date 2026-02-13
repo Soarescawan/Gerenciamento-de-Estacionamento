@@ -4,6 +4,8 @@
  #include <time.h>
  #include <stdlib.h>
  #include <string.h>
+ #include <locale.h>
+ #include <ctype.h>
 
 
 char *forma_pagamento() {
@@ -25,7 +27,7 @@ char *forma_pagamento() {
 
             
             case 2:
-                return strdup("Crédito");
+                return strdup("Credito");
 
             case 3:
                 return strdup("Debito");
@@ -60,7 +62,9 @@ void buscar_veiculo(Veiculo *lista, char *placa) {
                  printf("\nForma de Pagamento: %s", lista->forma_pagamento);
                  printf("\nValor pago: %s ", lista->valor_pago);
                  printf("\nTipo de Vaga: %s", lista->tipo_vaga);
-                 printf("\nProprietario: %s", lista->condutor->nome);
+                 if(lista->condutor){
+                    printf("\nProprietario: %s", lista->condutor->nome);
+                 }
                  printf("\n-------------------------------\n");
                  
 
@@ -86,6 +90,7 @@ Veiculo* remover_veiculo(Veiculo *lista, char *placa) {
 
             if (anterior == NULL)
                 lista = atual->prox;
+
             else
                 anterior->prox = atual->prox;
 
@@ -100,11 +105,15 @@ Veiculo* remover_veiculo(Veiculo *lista, char *placa) {
             free(atual->tipo_vaga);
             free(atual->vaga_do_veiculo);
 
-            if(atual->condutor->veiculos_cadastrados > 0)
-             atual->condutor->veiculos_cadastrados--;
-            else
-                atual->condutor->veiculos_cadastrados = 0;
-
+            if(atual->condutor){
+                if(atual->condutor->veiculos_cadastrados > 0)
+                    atual->condutor->veiculos_cadastrados--;
+                
+                else
+                    atual->condutor->veiculos_cadastrados = 0;
+            }
+                
+             
             
             free(atual);
             reescrever_arquivo_veiculos(lista);
@@ -170,8 +179,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
         novo->tipo_vaga = ler_string();
 
         if(novo->tipo_vaga == NULL){
-             free(novo->tipo_vaga);
-            novo->tipo_vaga = NULL;
+            
             continue;
         }
 
@@ -210,7 +218,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
         if(novo->vaga_do_veiculo == NULL  || novo->vaga_do_veiculo[0] == '\0'){
             printf("\nErro ao ler vaga do veiculo.\n");
-            free(novo->vaga_do_veiculo);
+            
             
         continue;
         }
@@ -271,7 +279,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
          }
 
         if(novo->placa == NULL || strlen(novo->placa) < 7 || strlen(novo->placa) > 8 ){
-             printf("\nErro: Placa deve conter entre 0 a 7 caracteres.\n");
+             printf("\nErro: Placa deve conter  7 caracteres.\n");
              printf("\n Tente Novamente \n");
              free(novo->placa);
              novo->placa = NULL;
@@ -300,8 +308,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
     while (1)
     {
 
-        novo->tempo_permanencia = NULL;
-        free( novo->tempo_permanencia);
+        
 
         if(strcmp(novo->valor_pago, "R$50,00") == 0){
              printf("\nDiaria selecionada.\n");
@@ -366,7 +373,9 @@ void listar_veiculos(Veiculo *lista) {
         printf("\nForma de Pagamento: %s", lista->forma_pagamento);
         printf("\nValor pago: %s ", lista->valor_pago);
         printf("\nTipo de Vaga: %s", lista->tipo_vaga);
-        printf("\nProprietario: %s", lista->condutor->nome);
+        if(lista->condutor)
+          printf("\nProprietario: %s", lista->condutor->nome);
+
         printf("\n-------------------------------\n");
         lista = lista->prox;
        
@@ -394,7 +403,8 @@ void dados_do_veiculo(Veiculo *v) {
     fprintf(file, "Tempo Permanencia: %s\n", v->tempo_permanencia);
     fprintf(file, "Forma Pagamento: %s\n", v->forma_pagamento);
     fprintf(file, "Valor Pago: %s\n", v->valor_pago);
-    fprintf(file, "Proprietario: %s\n", v->condutor->nome);
+    if(v->condutor)
+     fprintf(file, "Proprietario: %s\n", v->condutor->nome);
 
    
    
@@ -427,6 +437,9 @@ char *tempo_permanencia_sistema() {
         printf("\nDiaria selecionada.\n");
         printf("\nO valor da diaria e R$ 50,00\n");
         valor = malloc(strlen("R$50,00")+1);
+        if(!valor) 
+            return NULL;
+
         strcpy(valor, "R$50,00");
     
         return  valor;
@@ -436,6 +449,9 @@ char *tempo_permanencia_sistema() {
         printf("\nMensal selecionada.\n");
         printf("\nO valor do mensal e R$ 150,00\n");
             valor = malloc(strlen("R$150,00")+1);
+            if(!valor) 
+                return NULL;
+
             strcpy(valor, "R$150,00");
             return valor;
            
@@ -444,6 +460,9 @@ char *tempo_permanencia_sistema() {
         printf("\nO valor do pernoite e R$ 30,00\n");
         
             valor = malloc(strlen("R$30,00")+1);
+            if(!valor)
+             return NULL;
+
             strcpy(valor, "R$30,00");
             return valor;
            
@@ -459,7 +478,7 @@ char *tempo_permanencia_sistema() {
 char *data_do_sistema(void) {
     time_t agora;
     struct tm *tempo;
-    char *data = malloc(15); 
+    char *data = malloc(11); 
 
     if (data == NULL) {
         return NULL;
@@ -493,10 +512,20 @@ char *hora_atual_sistema() {
     time_t agora;
     struct tm *tempo;
     char *hora = malloc(20); 
-    
+    if (hora == NULL) {
+        return NULL;
+    }
 
+    
+    
     time(&agora);
     tempo = localtime(&agora);
+
+    if(tempo == NULL){
+        free(hora);
+        return NULL;
+    }
+
     snprintf(hora, 20, "%02d:%02d", tempo->tm_hour, tempo->tm_min);
 
 
@@ -590,10 +619,17 @@ Usuario *cadastrarCondutor(Usuario *lista1){
 
      Usuario *novo = malloc(sizeof(Usuario)); 
 
+     if(!novo){
+    printf("Erro de memoria\n");
+    return lista1;
+}
+
+
      
      int opcao;
      int contador =0;
      int chances = 3;
+     char *telefone = NULL;
 
      novo->veiculos_cadastrados = 0;
 
@@ -602,7 +638,7 @@ Usuario *cadastrarCondutor(Usuario *lista1){
             novo->nome = ler_string();
 
             if(novo->nome == NULL){
-                free(novo->nome);
+                
                 printf("\nEste campo n pode ser vazio\n");
                 continue;
             }else{
@@ -662,7 +698,7 @@ Usuario *cadastrarCondutor(Usuario *lista1){
                 free(novo->cpf);
                 novo->cpf = NULL;
              printf("\n--- Saindo -- \n");
-           return 0;
+           return lista1;
            }
            continue;
         }
@@ -685,8 +721,9 @@ Usuario *cadastrarCondutor(Usuario *lista1){
         printf("\nInsira o telefone do Condutor: ");
     
 
-        novo->telefone = ler_string();
-        novo->telefone = analizar_telefone(novo->telefone);
+        telefone = ler_string();
+        novo->telefone = analizar_telefone(telefone);
+        free(telefone);
           
 
 
@@ -744,7 +781,6 @@ void menu() {
     printf("7 - Remover Proprietario\n");
     printf("8 - Listar todos Usuarios ja cadastrados\n");
     printf("9 - Listar todos os Veiculos ja cadastrados\n");
-
     printf("10 - Sair\n");
 
 }
@@ -1086,6 +1122,11 @@ int verificar_vaga_banco(char *vaga){
 char *analizar_telefone(char *telefone){
     int i = 0;
     int j =0;
+    
+        if(telefone== NULL) 
+        return NULL;
+
+
     char *telefone_valido = malloc(strlen(telefone)+1);
 
     if(telefone_valido == NULL){
@@ -1093,11 +1134,12 @@ char *analizar_telefone(char *telefone){
     }
     for(i =0; telefone[i]!='\0';i++){
 
-        if(telefone[i] != ' ' && telefone[i] != '(' && telefone[i] != ')'){
-            
-            telefone_valido[j] = telefone[i];
-           j++;
+        
+
+        if(isdigit((unsigned char)telefone[i])){
+            telefone_valido[j++] = telefone[i];
         }
+
 
 
     }
@@ -1120,20 +1162,17 @@ void bancoDeDadosProprietarios(){
     if(arquivos == NULL){
 
         printf("\n Erro ao abrir arquivos\n");
-
-        
+        return ;
 
     }
+       printf("\n---------- Exibindo todos os Proprietarios ja Cadastrados ----------\n");
     while(fgets(linhas,sizeof(linhas),arquivos)){
-
+    
         printf("%s",linhas);
         printf("\n");
     }
 
-
-
     fclose(arquivos);
-
 
 }
 
@@ -1146,19 +1185,17 @@ void bancoDeDadosVeiculos(){
     if(arquivos == NULL){
 
         printf("\n Erro ao abrir arquivos\n");
-
-        
-
+        return ;
     }
+
+   printf("\n---------- Exibindo todos os Veiculos ja Cadastrados ----------\n");
+   
     while(fgets(linhas,sizeof(linhas),arquivos)){
 
         printf("%s",linhas);
         printf("\n");
     }
 
-
-
     fclose(arquivos);
-
 
 }
